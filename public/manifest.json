@@ -1,0 +1,28 @@
+{
+  "name": "Koshur Canvas - Kashmir Valley Travel",
+  "short_name": "Koshur Canvas",
+  "description": "Discover the breathtaking beauty of Kashmir Valley with Koshur Canvas. Premium travel packages, luxury stays, and unforgettable adventures.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050510",
+  "theme_color": "#00f0ff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "tourism", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
+}

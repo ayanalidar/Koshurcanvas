@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  phone     String?
+  role      String   @default("customer") // admin, staff, customer
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bookings  Booking[]
+  savedDestinations String @default("[]") // JSON array of destination slugs
+  savedPackages    String @default("[]") // JSON array of package slugs
+}
+
+model Destination {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  image       String
+  highlights  String
+  bestSeason  String
+  rating      Float    @default(4.5)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TravelPackage {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  image       String
+  duration    String
+  price       Float
+  discountPrice Float?
+  includes    String
+  itinerary   String
+  destinations String
+  maxGroupSize Int     @default(10)
+  rating      Float    @default(4.5)
+  reviews     Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Hotel {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  image       String
+  location    String
+  starRating  Int
+  pricePerNight Float
+  amenities   String
+  roomTypes   String
+  rating      Float    @default(4.5)
+  reviews     Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  location  String
+  avatar    String?
+  content   String
+  rating    Float    @default(5)
+  tripType  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  city      String?
+  state     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bookings  Booking[]
+  payments  Payment[]
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  bookingNo   String   @unique // e.g., "KC-2025-0001"
+  customerId  String?
+  userId      String?
+  customerName String
+  customerEmail String
+  customerPhone String
+  packageId   String?
+  packageName String?
+  hotelId     String?
+  hotelName   String?
+  vehicleId   String?
+  vehicleName String?
+  checkIn     String?
+  checkOut    String?
+  adults      Int      @default(2)
+  children    Int      @default(0)
+  totalAmount Float    @default(0)
+  paidAmount  Float    @default(0)
+  status      String   @default("pending") // pending, confirmed, in-progress, completed, cancelled
+  paymentStatus String @default("unpaid") // unpaid, partial, paid
+  source      String   @default("website") // website, whatsapp, phone, walk-in
+  notes       String?
+  adminNotes  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  user        User?      @relation(fields: [userId], references: [id])
+  invoices    Invoice[]
+  payments    Payment[]  @relation("BookingPayments")
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  invoiceNo   String   @unique // e.g., "INV-2025-0001"
+  bookingId   String
+  booking     Booking   @relation(fields: [bookingId], references: [id])
+  items       String   // JSON: [{description, qty, rate, amount}]
+  subtotal    Float
+  tax         Float    @default(0)
+  discount    Float    @default(0)
+  total       Float
+  status      String   @default("draft") // draft, sent, paid, cancelled
+  dueDate     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  paymentNo   String   @unique // e.g., "PAY-2025-0001"
+  bookingId   String?
+  customerId  String?
+  invoiceId   String?
+  amount      Float
+  method      String   // upi, bank_transfer, cash, card, online
+  status      String   @default("completed") // pending, completed, failed, refunded
+  reference   String? // transaction reference
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  booking    Booking?   @relation("BookingPayments", fields: [bookingId], references: [id])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  status    String   @default("new") // new, in-progress, replied, closed
+  priority  String   @default("normal") // low, normal, high, urgent
+  assignedTo String?
+  adminReply String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsOverride {
+  id        String   @id @default(cuid())
+  section   String
+  itemKey   String
+  field     String
+  value     String
+  updatedAt DateTime @updatedAt
+}
